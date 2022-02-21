@@ -5,6 +5,7 @@ local screen = {}
 local table_wipe = table.wipe
 local pairs = pairs
 local CheckOptions
+local isTargeting = false
 
 ---------------------------------------
 ---Source: https://github.com/citizenfx/lua/blob/luaglm-dev/cfx/libs/scripts/examples/scripting_gta.lua
@@ -91,6 +92,7 @@ end
 exports('LeftTarget', LeftTarget)
 
 local function DisableTarget(forcedisable)
+	isTargeting = false
 	if not targetActive or hasFocus or not forcedisable then return end
 	SetNuiFocus(false, false)
 	SetNuiFocusKeepInput(false)
@@ -178,6 +180,11 @@ end
 exports('CheckBones', CheckBones)
 
 local function EnableTarget()
+	RequestStreamedTextureDict("shared")
+	if not HasStreamedTextureDictLoaded("shared") then
+		Wait(0)
+	end
+	isTargeting = true
 	if not AllowTarget or success or (not Config.Standalone and not LocalPlayer.state['isLoggedIn']) or IsNuiFocused() or (Config.DisableInVehicle and IsPedInAnyVehicle(playerPed or PlayerPedId(), false)) then return end
 	if not CheckOptions then CheckOptions = _ENV.CheckOptions end
 	if targetActive or not CheckOptions then return end
@@ -318,6 +325,14 @@ local function EnableTarget()
 					if distance < (closestDis or Config.MaxDistance) and distance <= zone.targetoptions.distance and zone:isPointInside(coords) then
 						closestDis = distance
 						closestZone = zone
+						CreateThread(function()
+							while isTargeting do
+								Wait(0)
+								SetDrawOrigin(zone.center, 0) --add this
+								DrawSprite("shared", "emptydot_32", 0, 0, 0.02, 0.035, 0, 255,255,255, 255.0)
+								ClearDrawOrigin()
+							end
+						end)
 					end
 				end
 
@@ -401,10 +416,10 @@ end
 exports("AddPolyZone", AddPolyZone)
 
 local function AddComboZone(zones, options, targetoptions)
-	Zones[options.name] = ComboZone:Create(zones, options)
+	Zones[name] = ComboZone:Create(zones, options)
 	targetoptions.distance = targetoptions.distance or Config.MaxDistance
-	Zones[options.name].targetoptions = targetoptions
-	return Zones[options.name]
+	Zones[name].targetoptions = targetoptions
+	return Zones[name]
 end
 
 exports("AddComboZone", AddComboZone)
@@ -621,13 +636,13 @@ end
 
 exports("AddGlobalPlayer", AddGlobalPlayer)
 
-local function RemoveGlobalType(typ, labels)
+local function RemoveGlobalType(type, labels)
 	if type(labels) == 'table' then
 		for k, v in pairs(labels) do
-			Types[typ][v] = nil
+			Types[type][v] = nil
 		end
 	elseif type(labels) == 'string' then
-		Types[typ][labels] = nil
+		Types[type][labels] = nil
 	end
 end
 

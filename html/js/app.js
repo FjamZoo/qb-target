@@ -3,9 +3,10 @@ const Targeting = Vue.createApp({
         return {
             Show: false,
             ChangeTextIconColor: false, // This is if you want to change the color of the icon next to the option text with the text color
-            StandardEyeIcon: "far fa-eye",
-            CurrentIcon: "far fa-eye",
-            SuccessColor: "rgb(30, 144, 255)",
+            StandardEyeIcon: 'https://cdn.discordapp.com/attachments/903021216464531507/903024370665000981/normaleye.png', // Instead of icon it's using a image source found in HTML 
+            CurrentIcon: 'https://cdn.discordapp.com/attachments/903021216464531507/903024370665000981/normaleye.png', // Instead of icon it's using a image source found in HTML
+            SuccessIcon: 'https://cdn.discordapp.com/attachments/903021216464531507/903024373626208336/activeeye.png', // Instead of icon it's using a image source found in HTML
+            SuccessColor: "rgb(5, 241, 178)",
             StandardColor: "white",
             TargetHTML: "",
             TargetEyeStyleObject: {
@@ -43,33 +44,21 @@ const Targeting = Vue.createApp({
             let element = event.target;
             let split = element.id.split("-");
             if (split[0] === 'target' && split[1] !== 'eye') {
-                fetch(`https://${GetParentResourceName()}/selectTarget`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json; charset=UTF-8', },
-                    body: JSON.stringify(Number(split[1]) + 1)
-                }).then(resp => resp.json()).then(resp => {});
+                $.post(`https://${GetParentResourceName()}/selectTarget`, JSON.stringify(Number(split[1]) + 1));
                 this.TargetHTML = "";
                 this.Show = false;
             }
 
             if (event.button == 2) {
                 this.CloseTarget();
-                fetch(`https://${GetParentResourceName()}/closeTarget`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json; charset=UTF-8', },
-                    body: ''
-                }).then(resp => resp.json()).then(resp => {});
+                $.post(`https://${GetParentResourceName()}/closeTarget`);
             }
         });
 
         this.keyListener = window.addEventListener("keydown", (event) => {
             if (event.key == 'Escape' || event.key == 'Backspace') {
                 this.CloseTarget();
-                fetch(`https://${GetParentResourceName()}/closeTarget`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json; charset=UTF-8', },
-                    body: ''
-                }).then(resp => resp.json()).then(resp => {});
+                $.post(`https://${GetParentResourceName()}/closeTarget`);
             }
         });
     },
@@ -91,7 +80,7 @@ const Targeting = Vue.createApp({
             if (item.data) {
                 this.CurrentIcon = item.data;
             } else {
-                this.CurrentIcon = this.StandardEyeIcon;
+                this.CurrentIcon = this.SuccessIcon;
             }
             this.TargetEyeStyleObject.color = this.SuccessColor;
         },
@@ -138,5 +127,9 @@ const Targeting = Vue.createApp({
     }
 });
 
-Targeting.use(Quasar, { config: {} });
+Targeting.use(Quasar, {
+    config: {
+        loadingBar: { skipHijack: true }
+    }
+});
 Targeting.mount("#target-wrapper");
