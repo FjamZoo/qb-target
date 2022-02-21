@@ -4,6 +4,11 @@ qb-target is a targeting solution that allows interaction with any predefined en
 
 NoPixel inspired edit
 
+## Preview
+
+https://gyazo.com/5127178403fb43044408ba0b2f2c8f09
+
+
 ## Credits
 
 * Lots of credits goes to [qtarget](https://github.com/overextended/qtarget) for rewriting all of bt-target to make it more optimized and this resource is pretty much a fork of it.
